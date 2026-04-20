@@ -17,3 +17,7 @@ std::string ProbeOpenCV()
 }  // namespace internal
 }  // namespace dlcpu
 
+extern "C" int dlcpu_force_link_opencv_probe()
+{
+    return static_cast<int>(dlcpu::internal::ProbeOpenCV().size());
+}

@@ -16,3 +16,7 @@ std::string ProbeOnnxRuntime()
 }  // namespace internal
 }  // namespace dlcpu
 
+extern "C" int dlcpu_force_link_onnx_probe()
+{
+    return static_cast<int>(dlcpu::internal::ProbeOnnxRuntime().size());
+}
