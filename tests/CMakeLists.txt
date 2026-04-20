@@ -13,26 +13,25 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(dl_cpu_tests
+    ../src/dl_cpu.cpp
     test_version.cpp
 )
-
-target_link_libraries(dl_cpu_tests
-    PRIVATE
-        dl_cpu
-        GTest::gtest_main
-)
+target_compile_definitions(dl_cpu_tests PRIVATE DLCPU_BUILD)
 target_compile_features(dl_cpu_tests PRIVATE cxx_std_17)
-
+target_link_libraries(dl_cpu_tests PRIVATE dl_cpu_internal_objects GTest::gtest_main)
 dlcpu_enable_strict_warnings(dl_cpu_tests)
-
-foreach(config IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
-    string(TOUPPER "${config}" config_upper)
-    set_target_properties(dl_cpu_tests PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY_${config_upper} "${CMAKE_BINARY_DIR}/${config}"
-        LIBRARY_OUTPUT_DIRECTORY_${config_upper} "${CMAKE_BINARY_DIR}/${config}"
-        ARCHIVE_OUTPUT_DIRECTORY_${config_upper} "${CMAKE_BINARY_DIR}/${config}"
-    )
-endforeach()
-
+dlcpu_set_default_output_directories(dl_cpu_tests)
+dlcpu_copy_runtime_files(dl_cpu_tests ${DLCPU_ONNXRUNTIME_RUNTIME_DLLS})
 gtest_discover_tests(dl_cpu_tests WORKING_DIRECTORY $<TARGET_FILE_DIR:dl_cpu_tests>)
+
+add_executable(dl_cpu_dependency_tests
+    test_onnx_link.cpp
+    test_opencv_link.cpp
+)
+target_compile_features(dl_cpu_dependency_tests PRIVATE cxx_std_17)
+target_link_libraries(dl_cpu_dependency_tests PRIVATE dl_cpu_internal_objects GTest::gtest_main)
+dlcpu_enable_strict_warnings(dl_cpu_dependency_tests)
+dlcpu_set_default_output_directories(dl_cpu_dependency_tests)
+dlcpu_copy_runtime_files(dl_cpu_dependency_tests ${DLCPU_ONNXRUNTIME_RUNTIME_DLLS})
+gtest_discover_tests(dl_cpu_dependency_tests WORKING_DIRECTORY $<TARGET_FILE_DIR:dl_cpu_dependency_tests>)
 

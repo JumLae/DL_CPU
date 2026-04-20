@@ -4,6 +4,18 @@
 
 #include <exception>
 
+#if defined(_M_IX86)
+#define DLCPU_FORCE_LINK_SYMBOL(symbol_name) __pragma(comment(linker, "/include:_" #symbol_name))
+#else
+#define DLCPU_FORCE_LINK_SYMBOL(symbol_name) __pragma(comment(linker, "/include:" #symbol_name))
+#endif
+
+extern "C" int dlcpu_force_link_onnx_probe();
+extern "C" int dlcpu_force_link_opencv_probe();
+
+DLCPU_FORCE_LINK_SYMBOL(dlcpu_force_link_onnx_probe)
+DLCPU_FORCE_LINK_SYMBOL(dlcpu_force_link_opencv_probe)
+
 namespace {
 
 constexpr int32_t kVersionMajor = 0;
@@ -55,4 +67,3 @@ extern "C" DLCPU_API int32_t DLCPU_CALL DLCPU_GetLastErrorMessage(char* buf, int
         return failInternalError("Unhandled internal exception.");
     }
 }
-
