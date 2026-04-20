@@ -1,0 +1,100 @@
+name: ci
+
+on:
+    push:
+        branches:
+            - main
+            - feature/**
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    windows-build:
+        runs-on: windows-2022
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - platform: x86
+                      config: Debug
+                      cmake_arch: Win32
+                      msvc_arch: x86
+                    - platform: x86
+                      config: Release
+                      cmake_arch: Win32
+                      msvc_arch: x86
+                    - platform: x64
+                      config: Debug
+                      cmake_arch: x64
+                      msvc_arch: x64
+                    - platform: x64
+                      config: Release
+                      cmake_arch: x64
+                      msvc_arch: x64
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure MSVC v142 environment
+              uses: ilammy/msvc-dev-cmd@v1
+              with:
+                  arch: ${{ matrix.msvc_arch }}
+                  toolset: 14.29
+                  vsversion: 2019
+
+            - name: Configure CMake
+              shell: pwsh
+              run: |
+                  $commonArgs = @('-S', '.', '-B', 'build', '-A', '${{ matrix.cmake_arch }}')
+                  & cmake -G 'Visual Studio 16 2019' @commonArgs
+                  if ($LASTEXITCODE -ne 0) {
+                      Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+                      & cmake -G 'Visual Studio 17 2022' -T 'v142' @commonArgs
+                  }
+                  if ($LASTEXITCODE -ne 0) {
+                      throw 'CMake configure failed for both Visual Studio generators.'
+                  }
+
+            - name: Build
+              run: cmake --build build --config ${{ matrix.config }} --parallel
+
+            - name: Run tests
+              run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
+
+            - name: Validate exports
+              shell: pwsh
+              run: |
+                  $dllPath = Join-Path $PWD "build/${{ matrix.config }}/dl_cpu.dll"
+                  $dumpbinOutput = & dumpbin /exports $dllPath
+                  $dumpbinOutput | ForEach-Object { $_ }
+
+                  $exportNames = @()
+                  foreach ($line in $dumpbinOutput) {
+                      if ($line -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]+\s+(.+)$') {
+                          $exportNames += $matches[1].Trim()
+                      }
+                  }
+
+                  $expected = @(
+                      'DLCPU_GetLastErrorMessage'
+                      'DLCPU_GetVersion'
+                  )
+
+                  $unexpected = Compare-Object -ReferenceObject ($expected | Sort-Object) -DifferenceObject ($exportNames | Sort-Object)
+                  if ($unexpected) {
+                      throw "Unexpected export list: $($exportNames -join ', ')"
+                  }
+
+                  if ($exportNames | Where-Object { $_ -match '[?@]' }) {
+                      throw "Decorated export detected: $($exportNames -join ', ')"
+                  }
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v7
+              with:
+                  name: dl_cpu-${{ matrix.platform }}-${{ matrix.config }}
+                  path: build/${{ matrix.config }}/dl_cpu.dll
+                  if-no-files-found: error
+
