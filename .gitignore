@@ -3,6 +3,8 @@
 /out/
 /bin/
 /lib/
+/.cache/
+/vcpkg_installed/
 
 # Visual Studio
 /.vs/
@@ -49,4 +51,3 @@
 *.cache
 Thumbs.db
 Desktop.ini
-
