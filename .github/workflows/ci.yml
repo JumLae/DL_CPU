@@ -65,6 +65,12 @@ jobs:
                   toolset: 14.29
                   vsversion: 2022
 
+            - name: Prepare cache directories
+              shell: pwsh
+              run: |
+                  New-Item -ItemType Directory -Force -Path '${{ github.workspace }}/.cache/vcpkg-binary' | Out-Null
+                  New-Item -ItemType Directory -Force -Path '${{ github.workspace }}/.cache/fetchcontent' | Out-Null
+
             - name: Setup vcpkg
               uses: lukka/run-vcpkg@v11.5
               with:
