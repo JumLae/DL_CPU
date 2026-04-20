@@ -63,7 +63,7 @@ jobs:
               with:
                   arch: ${{ matrix.msvc_arch }}
                   toolset: 14.29
-                  vsversion: 2019
+                  vsversion: 2022
 
             - name: Setup vcpkg
               uses: lukka/run-vcpkg@v11.5
