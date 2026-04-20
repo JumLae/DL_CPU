@@ -1,0 +1,52 @@
+# Build directories
+/build/
+/out/
+/bin/
+/lib/
+
+# Visual Studio
+/.vs/
+*.VC.db
+*.VC.opendb
+*.sdf
+*.opensdf
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# CMake
+/CMakeUserPresets.json
+/CMakePresets.json
+/CMakeFiles/
+/CMakeCache.txt
+/Testing/
+/cmake_install.cmake
+/compile_commands.json
+/_deps/
+
+# Test and coverage output
+*.gcno
+*.gcda
+*.profraw
+*.profdata
+
+# Binaries and libraries
+*.obj
+*.o
+*.pdb
+*.idb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+Thumbs.db
+Desktop.ini
+
