@@ -1,0 +1,6 @@
+LIBRARY "dl_cpu"
+
+EXPORTS
+    DLCPU_GetVersion=_DLCPU_GetVersion@12
+    DLCPU_GetLastErrorMessage=_DLCPU_GetLastErrorMessage@8
+
