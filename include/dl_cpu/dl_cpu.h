@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 
-#ifdef DLCPU_BUILD
+#if defined(DLCPU_BUILD)
+#if defined(_M_IX86)
+#define DLCPU_API
+#else
 #define DLCPU_API __declspec(dllexport)
+#endif
 #else
 #define DLCPU_API __declspec(dllimport)
 #endif
@@ -31,4 +35,3 @@ DLCPU_API int32_t DLCPU_CALL DLCPU_GetLastErrorMessage(char* buf, int32_t buf_si
 #endif
 
 #endif  /* DL_CPU_DL_CPU_H_ */
-

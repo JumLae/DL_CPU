@@ -73,7 +73,10 @@ jobs:
                   $exportNames = @()
                   foreach ($line in $dumpbinOutput) {
                       if ($line -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]+\s+(.+)$') {
-                          $exportNames += $matches[1].Trim()
+                          $candidate = $matches[1].Trim()
+                          if ($candidate -ne '[NONAME]') {
+                              $exportNames += $candidate
+                          }
                       }
                   }
 
@@ -97,4 +100,3 @@ jobs:
                   name: dl_cpu-${{ matrix.platform }}-${{ matrix.config }}
                   path: build/${{ matrix.config }}/dl_cpu.dll
                   if-no-files-found: error
-
