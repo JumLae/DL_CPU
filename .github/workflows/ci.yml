@@ -125,6 +125,9 @@ jobs:
                   foreach ($line in $dumpbinOutput) {
                       if ($line -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]+\s+(.+)$') {
                           $candidate = $matches[1].Trim()
+                          if ($candidate -like '*=*') {
+                              $candidate = $candidate.Split('=')[0].Trim()
+                          }
                           if ($candidate -ne '[NONAME]') {
                               $exportNames += $candidate
                           }
